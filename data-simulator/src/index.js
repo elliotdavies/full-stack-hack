@@ -17,7 +17,8 @@ const run = () => {
   // console.log('----');
 
   const tempEvents = generate('tempRange');
-  batchEmit(tempEvents);
+  // batchEmit(tempEvents);
+  console.log(tempEvents);
 };
 
 run();

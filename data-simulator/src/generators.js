@@ -10,7 +10,7 @@ const {
   addHours
 } = require('date-fns');
 
-const { last, range, reduce } = require('ramda');
+const { last, range, reduce, scan } = require('ramda');
 
 /**
   Event schema:
@@ -83,14 +83,12 @@ const generateTempRange = () => {
 
   const makeEvent = event('temp');
 
-  const initialEvent = makeEvent({ time: start, temp: initialTemp });
-
-  return reduce(
-    events => {
-      const { payload } = last(events);
-      return [...events, makeEvent(generateTempFrom(payload))];
+  return scan(
+    event => {
+      const { payload } = event;
+      return makeEvent(generateTempFrom(payload));
     },
-    [initialEvent],
+    makeEvent({ time: start, temp: initialTemp }),
     range(0, numEvents)
   );
 };
