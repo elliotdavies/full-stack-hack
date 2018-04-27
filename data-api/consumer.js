@@ -1,8 +1,15 @@
 const Kafka = require("node-rdkafka");
+const MongoClient = require("mongodb").MongoClient;
 
-module.exports = () => {
+module.exports = async () => {
+  const client = await MongoClient.connect("");
+  const db = client.db("iot");
+  const rawCollection = db.collection("raw");
+  const analysisCollection = db.collection("analysis");
+
   const consumer = new Kafka.KafkaConsumer(
     {
+      "group.id": "kafka",
       "bootstrap.servers":
         "r0.cp63.us-east-1.aws.confluent.cloud:9092,r0.cp63.us-east-1.aws.confluent.cloud:9093,r0.cp63.us-east-1.aws.confluent.cloud:9094",
       "api.version.request": "true",
@@ -22,14 +29,27 @@ module.exports = () => {
 
   consumer
     .on("ready", () => {
-      consumer.subscribe(["iotDataTest"]);
-      consumer.consume((e, m) => {
-        console.log({ e, m });
-      });
+      console.log("Ready to consume!");
+      consumer.subscribe(["iotDataTest", "AVERAGE_TEMPS"]);
+      consumer.consume();
     })
     .on("data", data => {
       // Output the actual message contents
-      console.log({ data });
-      console.log(data.value.toString());
+      const result = JSON.parse(data.value.toString());
+
+      switch (data.topic) {
+        case "iotDataTest":
+          rawCollection.insertOne({
+            ...result,
+            timestamp: new Date(result.timestamp)
+          });
+          break;
+        case "AVERAGE_TEMPS":
+          analysisCollection.insertOne({
+            ...result,
+            timestamp: new Date(data.timestamp)
+          });
+          break;
+      }
     });
 };

@@ -2,7 +2,7 @@ const fastify = require("fastify")();
 const launchConsumer = require("./consumer");
 
 fastify.register(require("./db"), {
-  url: ""
+  url: "mongodb+srv://chris:chris@fullstackhackiot-qwiku.mongodb.net"
 });
 fastify.register(require("./routes"));
 
