@@ -3,4 +3,7 @@ const emit = event => {
   console.log(event);
 };
 
-module.exports = emit;
+// Emit an array of events
+const batchEmit = events => events.forEach(emit);
+
+module.exports = { emit, batchEmit };
