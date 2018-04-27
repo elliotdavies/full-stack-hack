@@ -9,19 +9,14 @@ const emitExamples = () => {
   emit(generate('temp'));
 };
 
-const generateTemps = n =>
-  Array(n)
-    .fill(null)
-    .map(() => generate('temp'));
-
 const run = () => {
-  emitExamples();
+  // emitExamples();
+  //
+  // console.log('\n');
+  // console.log('Temperature range:');
+  // console.log('----');
 
-  console.log('\n');
-  console.log('Temperature range:');
-  console.log('----');
-
-  const tempEvents = generateTemps(5);
+  const tempEvents = generate('tempRange');
   batchEmit(tempEvents);
 };
 
