@@ -1,5 +1,4 @@
 const faker = require('faker');
-const uuid = require('uuid');
 
 const {
   startOfToday,
@@ -12,28 +11,34 @@ const {
 
 const { last, range, reduce, scan } = require('ramda');
 
+const sensorIds = {
+  temp: ['t1', 't2', 't3', 't4', 't5'],
+  soil: ['s1', 's2', 's3', 's4', 's5']
+};
+
 /**
   Event schema:
 
   {
-    id: Uuid,
-    category: 'name' | 'temp' | ...,
-    payload: { ... }
+    sensorId: Uuid,
+    sensorType: 'temp' | 'soil',
+    value: number,
+    timestamp: Date
   }
 
 */
-const event = category => payload => ({
-  uuid: uuid.v4(),
-  category,
-  payload
-  // @TODO timestamp
+const event = sensorType => (value, timestamp) => ({
+  sensorId: faker.random.arrayElement(sensorIds[sensorType]),
+  sensorType,
+  value,
+  timestamp
 });
 
 // Generate a 'name' event (for testing)
 const generateName = () => faker.name.findName();
 
 // Generate a temperature based on the current temp and time
-const generateTempFrom = ({ temp, time }) => {
+const generateTempFrom = (temp, time) => {
   const midnight = startOfToday();
   const isAfterHour = hour => isAfter(time, addHours(midnight, hour));
 
@@ -85,10 +90,10 @@ const generateTempRange = () => {
 
   return scan(
     event => {
-      const { payload } = event;
-      return makeEvent(generateTempFrom(payload));
+      const data = generateTempFrom(event.value, event.timestamp);
+      return makeEvent(data.temp, data.time);
     },
-    makeEvent({ time: start, temp: initialTemp }),
+    makeEvent(initialTemp, start),
     range(0, numEvents)
   );
 };
@@ -98,8 +103,8 @@ const generate = category => {
   const makeEvent = event(category);
 
   switch (category) {
-    case 'name':
-      return makeEvent(generateName());
+    // case 'name':
+    //   return makeEvent(generateName());
     // case 'temp':
     //   return makeEvent(generateTemp());
     case 'tempRange':
