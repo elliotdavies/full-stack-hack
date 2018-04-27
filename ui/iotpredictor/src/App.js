@@ -1,7 +1,13 @@
 import React, { Component } from "react";
 import { VictoryChart, VictoryTheme, VictoryArea, VictoryAxis } from "victory";
 import "./App.css";
-import Header from "./Header";
+
+/* Getting the json data from the stream
+const info = fetch("some data");
+
+const data = info.then(data => data.json())
+
+*/
 
 const data = [
   { time: "12:05pm", temp: 20 },
@@ -16,7 +22,7 @@ class App extends React.Component {
       <div>
         {/* chart implementation*/}
         <div>
-          <Header title="IOT Predictor" />
+          <h1> IOT Predictor</h1>
         </div>
         <div>
           <svg style={{ height: 0 }}>
