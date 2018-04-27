@@ -1,6 +1,47 @@
+const Kafka = require('node-rdkafka');
+const { getTime } = require('date-fns');
+
+const producer = new Kafka.Producer({
+  'bootstrap.servers':
+    'r0.cp63.us-east-1.aws.confluent.cloud:9092,r0.cp63.us-east-1.aws.confluent.cloud:9093,r0.cp63.us-east-1.aws.confluent.cloud:9094',
+  'api.version.request': 'true',
+  'broker.version.fallback': '0.10.0.0',
+  'api.version.fallback.ms': '0',
+  'sasl.mechanisms': 'PLAIN',
+  'security.protocol': 'SASL_SSL',
+  'ssl.ca.location': '/usr/local/etc/openssl/cert.pem',
+  'sasl.username': 'A74DOVR4EICY2UNM',
+  'sasl.password':
+    '9s80729uT/IkIuhflMl6m7V4vfVlf6CF+LLT55oqR9xqyS7VzyKjVOkaYdmcCUCL'
+});
+
 // Emit an event to Kafka, or wherever
 const emit = event => {
   console.log(event);
+
+  producer.connect();
+
+  producer.on('ready', function() {
+    try {
+      producer.produce(
+        'iotDataTest', // Topic to send message to
+        null, // Partition (optional)
+        new Buffer(JSON.stringify(event)), // Message to send. Must be a buffer
+        null, // Key for keyed messages (optional)
+        getTime(event.payload.time) // Message timestamp (optional)
+      );
+    } catch (err) {
+      console.error('Error sending message', err);
+    }
+
+    producer.disconnect();
+  });
+
+  // Any errors we encounter, including connection errors
+  producer.on('event.error', function(err) {
+    console.error('Error from producer:', err);
+    producer.disconnect();
+  });
 };
 
 // Emit an array of events
