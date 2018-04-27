@@ -5,7 +5,7 @@ Six-hour hackday challenge to build a system that makes use of Apache Kafka, Mon
 Our idea was to build a system that can:
 
 * Simulate IOT device data, for example temperature and soil moisture
-* Feed the data into Kafka for processing, for example computing rolling averages
+* Feed the data into Kafka for processing using KSQL, for example computing rolling averages
 * Store everything in MongoDB
 * Render data visualisations in a React UI
 
