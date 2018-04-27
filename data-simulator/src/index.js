@@ -1,5 +1,9 @@
-const faker = require('faker');
+const generate = require('./generators');
+const emit = require('./emit');
 
-const name = faker.name.findName();
+const run = () => {
+  const nameEvent = generate('name');
+  emit(nameEvent);
+};
 
-console.log(name);
+run();
