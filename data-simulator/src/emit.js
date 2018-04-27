@@ -15,20 +15,28 @@ const producer = new Kafka.Producer({
     '9s80729uT/IkIuhflMl6m7V4vfVlf6CF+LLT55oqR9xqyS7VzyKjVOkaYdmcCUCL'
 });
 
-// Emit an event to Kafka, or wherever
+const getTopic = category => {
+  switch (category) {
+    case 'temp':
+    default:
+      return 'iotDataTest';
+  }
+};
+
+// Emit an event to Kafka
 const emit = event => {
   console.log(event);
 
   producer.connect();
 
-  producer.on('ready', function() {
+  producer.on('ready', () => {
     try {
       producer.produce(
-        'iotDataTest', // Topic to send message to
+        getTopic(event.category), // Topic to send message to
         null, // Partition (optional)
         new Buffer(JSON.stringify(event)), // Message to send. Must be a buffer
-        null, // Key for keyed messages (optional)
-        getTime(event.payload.time) // Message timestamp (optional)
+        null // Key for keyed messages (optional)
+        // getTime(event.payload.time) // Message timestamp (optional)
       );
     } catch (err) {
       console.error('Error sending message', err);
@@ -38,7 +46,7 @@ const emit = event => {
   });
 
   // Any errors we encounter, including connection errors
-  producer.on('event.error', function(err) {
+  producer.on('event.error', err => {
     console.error('Error from producer:', err);
     producer.disconnect();
   });
