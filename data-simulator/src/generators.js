@@ -5,10 +5,12 @@ const {
   startOfToday,
   endOfToday,
   differenceInMinutes,
-  addMinutes
+  addMinutes,
+  isAfter,
+  addHours
 } = require('date-fns');
 
-const { last } = require('ramda');
+const { last, range, reduce } = require('ramda');
 
 /**
   Event schema:
@@ -30,13 +32,45 @@ const event = category => payload => ({
 // Generate a 'name' event (for testing)
 const generateName = () => faker.name.findName();
 
-// Generate temperature data
-// const generateTemp = () => {
-//   const min = 5; // °C
-//   const max = 25;
-//
-//   return faker.random.number({ min, max });
-// };
+// Generate a temperature based on the current temp and time
+const generateTempFrom = ({ temp, time }) => {
+  const midnight = startOfToday();
+  const isAfterHour = hour => isAfter(time, addHours(midnight, hour));
+
+  let minVariance, maxVariance;
+  if (isAfterHour(20)) {
+    // Get much colder after sundown
+    minVariance = 0.3;
+    maxVariance = 0.05;
+  } else if (isAfterHour(15)) {
+    // Generally get colder after mid-afternoon
+    minVariance = 0.2;
+    maxVariance = 0.1;
+  } else if (isAfterHour(12)) {
+    // Generally get warmer after midday
+    minVariance = 0.05;
+    maxVariance = 0.2;
+  } else if (isAfterHour(8)) {
+    // Get much warmer after sunrise
+    minVariance = 0.05;
+    maxVariance = 0.3;
+  } else {
+    // Stay pretty much the same between midnight and sunrise
+    minVariance = 0.05;
+    maxVariance = 0.05;
+  }
+
+  const newTemp = faker.random.number({
+    min: temp - minVariance,
+    max: temp + maxVariance,
+    precision: 0.01
+  });
+
+  return {
+    temp: newTemp,
+    time: addMinutes(time, 5)
+  };
+};
 
 // Generate a temperature event every five minutes for 24 hours
 const generateTempRange = () => {
@@ -46,23 +80,18 @@ const generateTempRange = () => {
   const interval = 5; // minutes
 
   const numEvents = Math.round(differenceInMinutes(end, start) / interval);
-  const range = Array(numEvents).fill(null);
 
-  const initialEvent = event('temp')({ time: start, temp: initialTemp });
+  const makeEvent = event('temp');
 
-  return range.reduce(
+  const initialEvent = makeEvent({ time: start, temp: initialTemp });
+
+  return reduce(
     events => {
       const { payload } = last(events);
-      const { temp, time } = payload;
-
-      const newEvent = event('temp')({
-        temp: temp + 0.1,
-        time: addMinutes(time, 5)
-      });
-
-      return [...events, newEvent];
+      return [...events, makeEvent(generateTempFrom(payload))];
     },
-    [initialEvent]
+    [initialEvent],
+    range(0, numEvents)
   );
 };
 
