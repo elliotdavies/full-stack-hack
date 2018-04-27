@@ -1,0 +1,29 @@
+.App {
+  text-align: center;
+  display: flex;
+  display: inline-block;
+}
+
+h3 {
+  text-align: center;
+  padding-bottom: 30px;
+}
+h1 {
+  background-color: red;
+  color: white;
+  font-size: 50px;
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.table {
+  height: 400px;
+  width: 1000px;
+  display: flex;
+  margin-right: 100px;
+}
