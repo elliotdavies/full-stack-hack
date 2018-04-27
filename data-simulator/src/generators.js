@@ -17,8 +17,16 @@ const event = category => payload => ({
   payload
 });
 
-// Generate a 'name' event
+// Generate a 'name' event (for testing)
 const generateName = () => faker.name.findName();
+
+// Generate temperature data
+const generateTemp = () => {
+  const min = 5; // °C
+  const max = 25;
+
+  return faker.random.number({ min, max });
+};
 
 // Generate an event of the given category
 const generate = category => {
@@ -27,7 +35,8 @@ const generate = category => {
   switch (category) {
     case 'name':
       return makeEvent(generateName());
-      break;
+    case 'temp':
+      return makeEvent(generateTemp());
     default:
       console.error('Bad category', category);
   }
