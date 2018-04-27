@@ -20,6 +20,22 @@ async function routes(fastify, options) {
     return data;
   });
 
+  fastify.get("/raw/type/:type/:start/:end", async (request, reply) => {
+    const { start, end, type } = request.params;
+
+    const result = await rawCollection.find({
+      sensorType: type,
+      timestamp: {
+        $gte: new Date(start),
+        $lt: new Date(end)
+      }
+    });
+
+    const data = await result.toArray();
+
+    return data;
+  });
+
   fastify.get("/average", async (request, reply) => {
     const { start, end } = request.params;
 

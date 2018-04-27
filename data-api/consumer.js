@@ -2,7 +2,9 @@ const Kafka = require("node-rdkafka");
 const MongoClient = require("mongodb").MongoClient;
 
 module.exports = async () => {
-  const client = await MongoClient.connect("");
+  const client = await MongoClient.connect(
+    "mongodb+srv://chris:chris@fullstackhackiot-qwiku.mongodb.net"
+  );
   const db = client.db("iot");
   const rawCollection = db.collection("raw");
   const analysisCollection = db.collection("analysis");
@@ -30,10 +32,11 @@ module.exports = async () => {
   consumer
     .on("ready", () => {
       console.log("Ready to consume!");
-      consumer.subscribe(["iotDataTest", "AVERAGE_TEMPS"]);
+      consumer.subscribe(["iotDataTest", "AVERAGES"]);
       consumer.consume();
     })
     .on("data", data => {
+      console.log(data.topic);
       // Output the actual message contents
       const result = JSON.parse(data.value.toString());
 
@@ -44,7 +47,7 @@ module.exports = async () => {
             timestamp: new Date(result.timestamp)
           });
           break;
-        case "AVERAGE_TEMPS":
+        case "AVERAGES":
           analysisCollection.insertOne({
             ...result,
             timestamp: new Date(data.timestamp)

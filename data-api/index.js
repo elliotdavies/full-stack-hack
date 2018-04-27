@@ -1,6 +1,8 @@
 const fastify = require("fastify")();
+const cors = require("cors");
 const launchConsumer = require("./consumer");
 
+fastify.use(cors());
 fastify.register(require("./db"), {
   url: "mongodb+srv://chris:chris@fullstackhackiot-qwiku.mongodb.net"
 });
