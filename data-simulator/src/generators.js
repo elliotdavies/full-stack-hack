@@ -98,20 +98,26 @@ const generateTempRange = () => {
   );
 };
 
-// Generate an event of the given category
-const generate = category => {
-  const makeEvent = event(category);
+const generateSoilRange = tempRange => {
+  const start = startOfToday();
+  const initialSoilVal = 80;
+  const tempThreshold = 10;
 
-  switch (category) {
-    // case 'name':
-    //   return makeEvent(generateName());
-    // case 'temp':
-    //   return makeEvent(generateTemp());
-    case 'tempRange':
-      return generateTempRange();
-    default:
-      console.error('Bad category', category);
-  }
+  const makeEvent = event('soil');
+
+  return scan(
+    ({ value: lastSoilVal }, { value: temp, timestamp }) => {
+      const decBy = temp > tempThreshold ? 0.3 : 0.15;
+      return makeEvent(lastSoilVal - decBy, timestamp);
+    },
+    makeEvent(initialSoilVal, start),
+    tempRange
+  );
 };
 
-module.exports = generate;
+// Generate an event of the given category
+module.exports = () => {
+  const tempEvents = generateTempRange();
+  const soilEvents = generateSoilRange(tempEvents);
+  return { tempEvents, soilEvents };
+};

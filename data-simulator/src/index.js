@@ -1,14 +1,14 @@
-const generate = require('./generators');
+const generateTempAndSoilRange = require('./generators');
 const { emit, batchEmit } = require('./emit');
 
 const runSingle = () => {
-  const tempEvents = generate('tempRange');
-  emit(tempEvents[0]);
+  const events = generateTempAndSoilRange();
+  emit(events[0]);
 };
 
 const run = () => {
-  const tempEvents = generate('tempRange');
-  batchEmit(tempEvents);
+  const { tempEvents, soilEvents } = generateTempAndSoilRange();
+  batchEmit([...tempEvents, ...soilEvents]);
 };
 
 if (process.env.MODE === 'single') {
