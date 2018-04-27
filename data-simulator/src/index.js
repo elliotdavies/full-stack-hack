@@ -8,7 +8,7 @@ const runSingle = () => {
 
 const run = () => {
   const tempEvents = generate('tempRange');
-  emit(tempEvents);
+  batchEmit(tempEvents);
 };
 
 if (process.env.MODE === 'single') {
